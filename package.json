@@ -1,0 +1,52 @@
+{
+  "name": "trezo",
+  "version": "3.6.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "build:production": "NODE_ENV=production next build",
+    "start:production": "NODE_ENV=production next start",
+    "docker:build": "docker build -t saas-menu-frontend .",
+    "docker:run": "docker run -p 3000:3000 saas-menu-frontend",
+    "docker:compose": "docker-compose up --build",
+    "clean": "rm -rf .next out dist node_modules/.cache"
+  },
+  "dependencies": {
+    "@fullcalendar/daygrid": "^6.1.17",
+    "@fullcalendar/interaction": "^6.1.17",
+    "@fullcalendar/react": "^6.1.17",
+    "@headlessui/react": "^2.2.2",
+    "@tanstack/react-query": "^5.90.12",
+    "@tanstack/react-query-devtools": "^5.91.1",
+    "apexcharts": "^4.7.0",
+    "material-symbols": "^0.31.2",
+    "next": "16.0.7",
+    "next-intl": "^4.6.1",
+    "react": "^19.0.1",
+    "react-apexcharts": "^1.7.0",
+    "react-calendar": "^5.1.0",
+    "react-dom": "^19.0.1",
+    "react-hot-toast": "^2.6.0",
+    "react-simple-wysiwyg": "^3.2.2",
+    "react-svg-worldmap": "^2.0.0-alpha.16",
+    "remixicon": "^4.6.0",
+    "swiper": "^11.2.6",
+    "tailwind-scrollbar": "^4.0.2",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.7",
+    "sass": "^1.87.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
