@@ -23,23 +23,25 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Redirect /menu/[slug] paths to subdomains
+  // Redirect /menu/[slug] paths to subdomains only if not already on that subdomain
   const menuMatch = url.pathname.match(/^\/(ar|en)?\/?menu\/([^/]+)/);
   if (menuMatch) {
     const slug = menuMatch[2];
-    const baseHost = hostWithoutPort.includes('localhost')
-      ? 'localhost'
-      : hostWithoutPort.split('.').slice(-2).join('.');
-    const port = hostname.includes(':') ? ':' + hostname.split(':')[1] : '';
-    return NextResponse.redirect(`${forwardedProto}://${slug}.${baseHost}${port}`);
+    // If we're already on the correct subdomain, don't redirect
+    if (subdomain !== slug) {
+      const baseHost = hostWithoutPort.includes('localhost')
+        ? 'localhost'
+        : hostWithoutPort.split('.').slice(-2).join('.');
+      const port = hostname.includes(':') ? ':' + hostname.split(':')[1] : '';
+      return NextResponse.redirect(`${forwardedProto}://${slug}.${baseHost}${port}`);
+    }
   }
 
   // Rewrite subdomain to menu page
   if (subdomain) {
-    // Determine locale
     const locale = url.pathname.startsWith('/en') ? 'en' : 'ar';
 
-    // Rewrite to menu page if path is '/' or '/locale'
+    // Rewrite root paths to menu page
     let pathname = url.pathname;
     if (pathname === '/' || pathname === `/${locale}`) {
       pathname = `/${locale}/menu/${subdomain}`;
