@@ -5,7 +5,7 @@ import path from "path";
 const nextConfig: NextConfig = {
   // Enable standalone output for Docker production builds
   output: 'standalone',
-  
+
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -27,12 +27,22 @@ const nextConfig: NextConfig = {
   // Disable telemetry in production
   productionBrowserSourceMaps: false,
 
-  // Enable experimental features for better subdomain support
+  // Experimental features
   experimental: {
     // serverActions: true,
   },
 
-  // Allow multiple domains/subdomains
+  // Allow multiple domains/subdomains + SPA fallback
+  async rewrites() {
+    return [
+      {
+        source: '/:path*',   // any path
+        destination: '/',     // always serve the main index.html
+      },
+    ];
+  },
+
+  // Optional: CORS headers for APIs
   async headers() {
     return [
       {
