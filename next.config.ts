@@ -3,20 +3,13 @@ import createNextIntlPlugin from "next-intl/plugin";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  // Enable standalone output for Docker production builds
-  output: 'standalone',
+  output: "standalone",
 
   images: {
     unoptimized: true,
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-      {
-        protocol: 'http',
-        hostname: '**',
-      },
+      { protocol: "https", hostname: "**" },
+      { protocol: "http", hostname: "**" },
     ],
   },
 
@@ -24,47 +17,31 @@ const nextConfig: NextConfig = {
     includePaths: [path.join(__dirname, "styles")],
   },
 
-  // Disable telemetry in production
   productionBrowserSourceMaps: false,
 
-  // Experimental features
   experimental: {
     // serverActions: true,
   },
 
-  // Allow multiple domains/subdomains + SPA fallback
-  async rewrites() {
-    return [
-      {
-        source: '/:path*',   // any path
-        destination: '/',     // always serve the main index.html
-      },
-    ];
-  },
+  // Serve SPA fallback for non-API routes
+  // Removed aggressive rewrites that conflict with Next.js routing and middleware
+  // Next.js handles routing automatically, and middleware handles subdomain logic
+  // If you need specific rewrites, add them here with proper exclusions
 
-  // Optional: CORS headers for APIs
   async headers() {
     return [
       {
         source: '/:path*',
         headers: [
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: '*',
-          },
-          {
-            key: 'Access-Control-Allow-Methods',
-            value: 'GET, POST, PUT, DELETE, OPTIONS',
-          },
-          {
-            key: 'Access-Control-Allow-Headers',
-            value: 'Content-Type, Authorization',
-          },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
         ],
       },
     ];
   },
 };
 
+// Wrap with NextIntl plugin
 const withNextIntl = createNextIntlPlugin();
 export default withNextIntl(nextConfig);

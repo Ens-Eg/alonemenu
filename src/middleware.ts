@@ -3,9 +3,25 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
-  const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
   const url = request.nextUrl.clone();
 
+  // Get protocol from Cloudflare headers or forwarded headers
+  // Cloudflare uses CF-Visitor header, fallback to x-forwarded-proto
+  const cfVisitor = request.headers.get('cf-visitor');
+  let protocol = 'https';
+  if (cfVisitor) {
+    try {
+      const visitor = JSON.parse(cfVisitor);
+      protocol = visitor.scheme || 'https';
+    } catch {
+      // If parsing fails, use default
+    }
+  } else {
+    const forwardedProto = request.headers.get('x-forwarded-proto');
+    protocol = forwardedProto || (url.protocol === 'https:' ? 'https' : 'http');
+  }
+
+  // Remove port from hostname when behind proxy (Cloudflare/Coolify)
   const hostWithoutPort = hostname.split(':')[0];
   const hostParts = hostWithoutPort.split('.');
 
@@ -26,12 +42,20 @@ export function middleware(request: NextRequest) {
   if (menuMatch) {
     const slug = menuMatch[2];
     if (subdomain !== slug) {
-      // redirect to subdomain
+      // redirect to subdomain - never include port when behind proxy
       const baseHost = hostWithoutPort.includes('localhost')
         ? 'localhost'
         : hostWithoutPort.split('.').slice(-2).join('.');
-      const port = hostname.includes(':') ? ':' + hostname.split(':')[1] : '';
-      return NextResponse.redirect(`${forwardedProto}://${slug}.${baseHost}${port}`);
+      // Only include port for localhost development
+      const port = hostWithoutPort.includes('localhost') && hostname.includes(':') 
+        ? ':' + hostname.split(':')[1] 
+        : '';
+      const redirectUrl = `${protocol}://${slug}.${baseHost}${port}${url.pathname}${url.search}`;
+      
+      // Prevent redirect loop - check if we're already redirecting to the same URL
+      if (url.toString() !== redirectUrl) {
+        return NextResponse.redirect(redirectUrl);
+      }
     }
   }
 
